@@ -1,0 +1,40 @@
+
+#when create socket its create like this its have no ip and port
+socket
+{
+    protocol: TCP
+    local_ip: NONE
+    local_port: NONE
+    state: NEW
+}
+#What the OS actually needs
+
+When a TCP packet arrives, it contains:
+
+destination IP + destination port
+
+So routing table contains things like:
+
+default gateway
+network interfaces (eth0, wlan0)
+next hop router
+
+
+
+B) Socket lookup table (VERY IMPORTANT for ft_irc)
+
+This is what you were actually asking about.
+
+When a packet arrives, kernel asks:
+
+“Which process/socket should receive this?”
+
+So it checks:
+
+(local IP, local port) → socket fd
+
+Example:
+
+0.0.0.0:6667 → fd 3 (your IRC server)
+
+👉 This is for incoming traffic
