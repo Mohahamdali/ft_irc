@@ -1,7 +1,6 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -10,7 +9,9 @@
 #include <exception>
 #include "Client.hpp"
 #include <map>
-
+#include "Command.hpp"
+#include "Parser.hpp"
+#include <cstdlib>
 
 class Server
 {
@@ -27,9 +28,7 @@ class Server
         void run();
         void init_Server();
         void acceptClient();
-    
 };
 
-
-
+Command parser(const std::string &msg);
 #endif

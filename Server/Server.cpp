@@ -1,6 +1,5 @@
 #include "Server.hpp"
-
-
+#include <cstring>
 Server::Server(int pt, std::string pass) : port(pt) , password(pass)
 {
 }
@@ -46,6 +45,7 @@ void Server::init_Server()
     listenSocket();
 }
 
+
 void Server::run()
 {
     init_Server();
@@ -61,12 +61,11 @@ void Server::run()
             if (it ->first > max)
                 max = it ->first;
         }
-        int activity = select(max +1,&watch_table,NULL,NULL,NULL);
+        int activity = select(max + 1, &watch_table,NULL,NULL,NULL);
         if (activity < 0)
             continue;
         if(FD_ISSET(server_fd, &watch_table))
             acceptClient();
-        int i  = 0;
         for (std::map<int,\
             Client>::iterator it = clients.begin();\
             it != clients.end();)
@@ -79,13 +78,19 @@ void Server::run()
                 if(check > 0)
                 {
                     std::string data(buffer,check);
-                    std::cout << "Received: " << data << std::endl;
                     it->second.appendBuffer(data);
+                    std::vector<std::string> msgs = it ->second.ExtractMessage();
+                    // had loop for debbuging bila client can send a valid message to server ("\r\n")
+                    for (size_t i = 0; i < msgs.size(); i++)
+                    {
+                        // std::cout << "MSG: " << msgs[i] << std::endl;
+                        Command cmd = Parser::parse(msgs[i]);
+                    }
                 }
                 else
                 {
                     close(fd);
-                    it = clients.erase(it);
+                    clients.erase(it++);
                     continue;
                 }
             }
