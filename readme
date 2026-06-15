@@ -1,9 +1,9 @@
 # ft_irc
 
-![C++](https://img.shields.io/badge/C++-98/17-blue)
-![Network Programming](https://img.shields.io/badge/Networking-TCP/IP-informational)
-![42 Project](https://img.shields.io/badge/42-ft__irc-black)
-![Status](https://img.shields.io/badge/Status-Completed-success)
+![C++]
+![Network Programming]
+![42 Project]
+![Status]
 
 A C++ Internet Relay Chat server built as part of the 42 Network curriculum.
 
