@@ -1,61 +1,78 @@
 # ft_irc
 
-A lightweight Internet Relay Chat server written in C++ as part of the 42 Network curriculum.
+![C++](https://img.shields.io/badge/C++-98/17-blue)
+![Network Programming](https://img.shields.io/badge/Networking-TCP/IP-informational)
+![42 Project](https://img.shields.io/badge/42-ft__irc-black)
+![Status](https://img.shields.io/badge/Status-Completed-success)
 
-This project implements a basic IRC server capable of handling multiple clients simultaneously using socket programming and non-blocking I/O. It follows core IRC protocol concepts such as authentication, nicknames, users, channels, private messages, and channel moderation commands.
+A C++ Internet Relay Chat server built as part of the 42 Network curriculum.
+
+`ft_irc` is a lightweight IRC server that supports multiple clients, authentication, channels, private messaging, and basic channel moderation. The project focuses on socket programming, non-blocking I/O, command parsing, and server-side client management.
+
+---
+
+## Table of Contents
+
+* [Overview](#overview)
+* [Features](#features)
+* [Implemented Commands](#implemented-commands)
+* [Build](#build)
+* [Usage](#usage)
+* [Testing With an IRC Client](#testing-with-an-irc-client)
+* [Project Architecture](#project-architecture)
+* [What I Learned](#what-i-learned)
+* [Limitations](#limitations)
+* [Author](#author)
+
+---
 
 ## Overview
 
-`ft_irc` is designed to reproduce the behavior of a real IRC server at a simplified scale. Clients can connect to the server using an IRC client, authenticate with a password, choose a nickname, join channels, exchange messages, and use common channel management commands.
+The goal of this project is to implement an IRC server compatible with standard IRC clients.
 
-The project focuses on network programming, event-driven architecture, protocol parsing, and robust client management in C++.
+The server accepts multiple TCP clients, handles IRC commands, manages users and channels, and sends protocol-style replies. It is designed around an event-driven model using non-blocking sockets.
+
+This project helped me understand how real-time network servers work internally, from socket creation to client registration, command parsing, and channel management.
+
+---
 
 ## Features
 
-* TCP server using IPv4 sockets
-* Multiple client handling
-* Non-blocking I/O
-* IRC-style command parsing
-* Password-based server authentication
-* Nickname and user registration
-* Channel creation and joining
-* Private messages between users
-* Channel messages
-* Channel operators
-* Basic IRC commands implementation
-* Error handling and protocol replies
-* Clean client disconnection handling
+| Feature             | Description                                                 |
+| ------------------- | ----------------------------------------------------------- |
+| TCP Server          | Accepts client connections over IPv4 TCP sockets            |
+| Multiple Clients    | Handles several connected users at the same time            |
+| Non-blocking I/O    | Uses an event-driven approach to avoid blocking the server  |
+| Authentication      | Clients must authenticate using the server password         |
+| User Registration   | Supports nickname and username registration                 |
+| Channels            | Users can create, join, leave, and interact inside channels |
+| Private Messages    | Supports direct messages between users                      |
+| Channel Operators   | Operators can manage channel behavior and users             |
+| Error Handling      | Sends appropriate replies for invalid commands or states    |
+| Clean Disconnection | Handles client quit and unexpected disconnection            |
+
+---
 
 ## Implemented Commands
 
-The server supports common IRC commands such as:
+| Command   | Description                           |
+| --------- | ------------------------------------- |
+| `PASS`    | Authenticate with the server password |
+| `NICK`    | Set or change client nickname         |
+| `USER`    | Register username information         |
+| `JOIN`    | Join or create a channel              |
+| `PART`    | Leave a channel                       |
+| `PRIVMSG` | Send private or channel messages      |
+| `KICK`    | Remove a user from a channel          |
+| `INVITE`  | Invite a user to a channel            |
+| `TOPIC`   | View or change a channel topic        |
+| `MODE`    | Change channel modes                  |
+| `PING`    | Keep the connection alive             |
+| `QUIT`    | Disconnect from the server            |
 
-```text
-PASS
-NICK
-USER
-JOIN
-PRIVMSG
-KICK
-INVITE
-TOPIC
-MODE
-PART
-QUIT
-PING
-```
+Some commands are implemented according to the 42 project requirements and may not fully cover the complete IRC RFC specification.
 
-Some commands may be implemented according to the project requirements and may not cover the full official IRC specification.
-
-## Technologies Used
-
-* C++
-* Unix sockets
-* TCP/IP networking
-* Non-blocking file descriptors
-* poll/select-based event loop
-* IRC protocol concepts
-* Makefile
+---
 
 ## Build
 
@@ -84,11 +101,13 @@ Remove object files and executable:
 make fclean
 ```
 
-Rebuild the project:
+Rebuild:
 
 ```bash
 make re
 ```
+
+---
 
 ## Usage
 
@@ -104,102 +123,132 @@ Example:
 ./ircserv 6667 mypassword
 ```
 
-Then connect using an IRC client such as `irssi`:
+---
+
+## Testing With an IRC Client
+
+You can connect using an IRC client such as `irssi`:
 
 ```bash
 irssi
 /connect localhost 6667 mypassword
 ```
 
-Or with `nc` for basic manual testing:
+You can also test manually with `nc`:
 
 ```bash
 nc localhost 6667
 ```
 
-Example manual registration:
+Manual registration example:
 
 ```text
 PASS mypassword
-NICK john
-USER john 0 * :John Doe
+NICK alice
+USER alice 0 * :Alice
 JOIN #general
-PRIVMSG #general :Hello everyone
+PRIVMSG #general :Hello from ft_irc
 ```
 
-## Project Structure
+Second client example:
 
 ```text
-.
+PASS mypassword
+NICK bob
+USER bob 0 * :Bob
+JOIN #general
+PRIVMSG #general :Hello Alice
+```
+
+---
+
+## Project Architecture
+
+```text
+ft_irc/
 ├── Makefile
 ├── includes/
+│   ├── Server.hpp
+│   ├── Client.hpp
+│   ├── Channel.hpp
+│   └── Command.hpp
 ├── src/
 │   ├── main.cpp
 │   ├── Server.cpp
 │   ├── Client.cpp
 │   ├── Channel.cpp
 │   └── commands/
+│       ├── Pass.cpp
+│       ├── Nick.cpp
+│       ├── User.cpp
+│       ├── Join.cpp
+│       ├── Privmsg.cpp
+│       ├── Kick.cpp
+│       ├── Invite.cpp
+│       ├── Topic.cpp
+│       ├── Mode.cpp
+│       └── Quit.cpp
 └── README.md
 ```
 
 The exact structure may differ depending on the implementation.
 
-## Core Concepts
+---
+
+## Core Components
 
 ### Server
 
-The server is responsible for creating the listening socket, accepting new clients, monitoring file descriptors, receiving data, parsing commands, and sending replies.
+The server creates the listening socket, accepts new client connections, monitors file descriptors, receives raw data, parses IRC commands, and sends responses.
 
 ### Client
 
-Each connected user is represented as a client object. The client stores information such as socket file descriptor, nickname, username, authentication state, and joined channels.
+The client object stores information about a connected user, including socket descriptor, nickname, username, authentication state, registration state, and joined channels.
 
 ### Channel
 
-Channels allow multiple users to communicate together. A channel can contain regular users and operators. Operators can manage the channel through commands such as `KICK`, `INVITE`, `TOPIC`, and `MODE`.
+The channel object manages users, operators, topics, invitations, and channel modes.
 
-### Command Handling
+### Command Handler
 
-Incoming messages are parsed into commands and arguments. Each command is validated and executed according to the client state and IRC rules.
+The command handler parses incoming messages and dispatches each IRC command to the correct execution logic.
 
-## Example Session
+---
 
-```text
-PASS mypassword
-NICK alice
-USER alice 0 * :Alice
-JOIN #chat
-PRIVMSG #chat :Hello from ft_irc
-```
+## What I Learned
 
-Another client can join the same channel:
+Through this project, I practiced:
 
-```text
-PASS mypassword
-NICK bob
-USER bob 0 * :Bob
-JOIN #chat
-PRIVMSG #chat :Hello Alice
-```
+* TCP socket programming in C++
+* Non-blocking I/O
+* Event-driven server design
+* IRC protocol basics
+* Command parsing and validation
+* Managing multiple clients simultaneously
+* Designing server-side classes
+* Handling network errors and disconnections
+* Building a structured C++ project with Makefile
 
-## Learning Objectives
-
-This project helped me understand:
-
-* How TCP servers work
-* How to manage multiple clients at the same time
-* How non-blocking I/O works
-* How IRC protocol messages are structured
-* How to design a command dispatcher
-* How to manage users, channels, and permissions
-* How to write more structured C++ code for a real networked application
+---
 
 ## Limitations
 
-This project is an educational IRC server and does not aim to fully implement every detail of the official IRC protocol. Some advanced IRC features may be missing or simplified.
+This project is an educational IRC server. It implements the required functionality for the 42 curriculum but does not aim to fully reproduce every detail of a production IRC daemon.
+
+Possible missing or simplified features include:
+
+* Full IRC RFC compliance
+* TLS/SSL encryption
+* Persistent server state
+* Server-to-server communication
+* Advanced IRC services
+
+---
 
 ## Author
 
-Mohamed Ali
+**Mohamed hamdali**
 Student at 1337 Coding School, part of the 42 Network
+
 GitHub: [Mohahamdali](https://github.com/Mohahamdali)
+
